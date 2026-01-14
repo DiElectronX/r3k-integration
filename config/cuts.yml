@@ -1,0 +1,49 @@
+random_seed: 271996
+
+trigger:
+  fractions:
+    # Format: [exclusive fraction, L1_Path, HLT_Path]
+    L1_11p0_HLT_6p5: [0.0466, "L1_DoubleEG11_er1p2_dR_Max0p6", "HLT_DoubleEle6p5_eta1p22_mMax6"]
+    L1_10p5_HLT_6p5: [0.0335, "L1_DoubleEG10p5_er1p2_dR_Max0p6", "HLT_DoubleEle6p5_eta1p22_mMax6"]
+    L1_10p5_HLT_5p0: [0.00304, "L1_DoubleEG10p5_er1p2_dR_Max0p6", "HLT_DoubleEle5_eta1p22_mMax6"]
+    L1_9p0_HLT_6p0:  [0.261, "L1_DoubleEG9_er1p2_dR_Max0p7", "HLT_DoubleEle6_eta1p22_mMax6"]
+    L1_8p5_HLT_5p5:  [0.0986, "L1_DoubleEG8p5_er1p2_dR_Max0p7", "HLT_DoubleEle5p5_eta1p22_mMax6"]
+    L1_8p5_HLT_5p0:  [0.0199, "L1_DoubleEG8p5_er1p2_dR_Max0p7", "HLT_DoubleEle5_eta1p22_mMax6"]
+    L1_8p0_HLT_5p0:  [0.204, "L1_DoubleEG8_er1p2_dR_Max0p7", "HLT_DoubleEle5_eta1p22_mMax6"]
+    L1_7p5_HLT_5p0:  [0.0483, "L1_DoubleEG7p5_er1p2_dR_Max0p7", "HLT_DoubleEle5_eta1p22_mMax6"]
+    L1_7p0_HLT_5p0:  [0.0786, "L1_DoubleEG7_er1p2_dR_Max0p8", "HLT_DoubleEle5_eta1p22_mMax6"]
+    L1_6p5_HLT_4p5:  [0.0107, "L1_DoubleEG6p5_er1p2_dR_Max0p8", "HLT_DoubleEle4p5_eta1p22_mMax6"]
+    L1_6p0_HLT_4p0:  [0.0742, "L1_DoubleEG6_er1p2_dR_Max0p8", "HLT_DoubleEle4_eta1p22_mMax6"]
+    L1_5p5_HLT_6p0:  [0.00442, "L1_DoubleEG5p5_er1p2_dR_Max0p8", "HLT_DoubleEle6_eta1p22_mMax6"]
+    L1_5p5_HLT_4p0:  [0.0191, "L1_DoubleEG5p5_er1p2_dR_Max0p8", "HLT_DoubleEle4_eta1p22_mMax6"]
+    L1_5p0_HLT_4p0:  [0.00122, "L1_DoubleEG5_er1p2_dR_Max0p9", "HLT_DoubleEle4_eta1p22_mMax6"]
+    L1_4p5_HLT_4p0:  [0.000885, "L1_DoubleEG4p5_er1p2_dR_Max0p9", "HLT_DoubleEle4_eta1p22_mMax6"]
+
+trigger_sf_params:
+  # [pt_min, pt_max, value, uncertainty]
+  # Note: 'inf' is valid in YAML for infinity
+  bins:
+    - [4.0, 6.0, 1.338, 0.709]
+    - [6.0, 7.0, 1.651, 0.321]
+    - [7.0, 8.0, 1.253, 0.193]
+    - [8.0, 9.0, 0.871, 0.156]
+    - [9.0, 10.0, 0.806, 0.199]
+    - [10.0, 11.0, 0.873, 0.273]
+    - [11.0, 12.0, 1.109, 0.425]
+    - [12.0, 13.0, 1.138, 0.284]
+    - [13.0, inf, 1.216, 0.39]
+
+preselection:
+  triplet: "BToKEE_svprob > 0.0001 && BToKEE_fit_l1_pt > 5. && BToKEE_fit_l2_pt > 5. && BToKEE_fit_mass > 4.5 && BToKEE_fit_mass < 6. && BToKEE_fit_pt > 1.75"
+  bdt_score: "Presel_BDT > -3.4"
+  anti_d0: "BToKEE_D0_mass_LepToK_KToPi > 2. && BToKEE_D0_mass_LepToPi_KToK > 2."
+
+q2_cuts:
+  jpsi:  "BToKEE_mll_fullfit > 2.9 && BToKEE_mll_fullfit < 3.2"
+  psi2s: "BToKEE_mll_fullfit > 3.55 && BToKEE_mll_fullfit < 3.8"
+  lowq2: "BToKEE_mll_fullfit > 1.05 && BToKEE_mll_fullfit < 2.45"
+  none:  "1"
+
+final_selection:
+  bdt_branch: "bdt_score" 
+  cut_value: 0.75

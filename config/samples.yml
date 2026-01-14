@@ -1,0 +1,6 @@
+samples:
+  - name: jpsi_resonant_test
+    path: /eos/cms/store/group/phys_bphys/DiElectronX/nzipper/postCMGToolsAndBDTScoreAdder/Bu_kaon_jpsi_resonant_flat.root 
+    is_data: False
+    regions: ["jpsi", "lowq2"]
+
