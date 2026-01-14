@@ -1,6 +1,6 @@
 # R(K) Analysis Integration Framework
 
-This repository contains the analysis integration tools for the B meson precision measurement. It includes modules for generating cutflow/efficiency tables and performing rapid physics cross-checks (R(K), Double Ratios) against Standard Model expectations.
+This repository stitches together different components of the analysis workflow, processing the NanAOD samples output from the [r3k-preselBDT](https://github.com/DiElectronX/r3k-preselBDT) repository, applying analysis selections, incorporating MC scale factors, preparing files for the final fits in [r3k-fitter](https://github.com/DiElectronX/r3k-fitter), and building an acceptance x efficiency table for the signal and control regions, used in the final measurement. It also includes the machinery to perform cross-check ratio calculations using these efficiencies and fitted yields.
 
 ## 📦 Setup & Dependencies
 
