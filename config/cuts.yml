@@ -12,7 +12,7 @@ trigger:
     L1_8p0_HLT_5p0:  [0.204, "L1_DoubleEG8_er1p2_dR_Max0p7", "HLT_DoubleEle5_eta1p22_mMax6"]
     L1_7p5_HLT_5p0:  [0.0483, "L1_DoubleEG7p5_er1p2_dR_Max0p7", "HLT_DoubleEle5_eta1p22_mMax6"]
     L1_7p0_HLT_5p0:  [0.0786, "L1_DoubleEG7_er1p2_dR_Max0p8", "HLT_DoubleEle5_eta1p22_mMax6"]
-    L1_6p5_HLT_4p5:  [0.0107, "L1_DoubleEG6p5_er1p2_dR_Max0p8", "HLT_DoubleEle4p5_eta1p22_mMax6"]
+    L1_6p5_HLT_4p5:  [0.107, "L1_DoubleEG6p5_er1p2_dR_Max0p8", "HLT_DoubleEle4p5_eta1p22_mMax6"]
     L1_6p0_HLT_4p0:  [0.0742, "L1_DoubleEG6_er1p2_dR_Max0p8", "HLT_DoubleEle4_eta1p22_mMax6"]
     L1_5p5_HLT_6p0:  [0.00442, "L1_DoubleEG5p5_er1p2_dR_Max0p8", "HLT_DoubleEle6_eta1p22_mMax6"]
     L1_5p5_HLT_4p0:  [0.0191, "L1_DoubleEG5p5_er1p2_dR_Max0p8", "HLT_DoubleEle4_eta1p22_mMax6"]
@@ -22,17 +22,29 @@ trigger:
 trigger_sf_params:
   # [pt_min, pt_max, value, uncertainty]
   # Note: 'inf' is valid in YAML for infinity
-  bins:
-    - [4.0, 6.0, 1.338, 0.709]
-    - [6.0, 7.0, 1.651, 0.321]
-    - [7.0, 8.0, 1.253, 0.193]
-    - [8.0, 9.0, 0.871, 0.156]
-    - [9.0, 10.0, 0.806, 0.199]
-    - [10.0, 11.0, 0.873, 0.273]
-    - [11.0, 12.0, 1.109, 0.425]
-    - [12.0, 13.0, 1.138, 0.284]
-    - [13.0, inf, 1.216, 0.39]
+  #bins:
+  #  - [4.0, 6.0, 1.338, 0.709]
+  #  - [6.0, 7.0, 1.651, 0.321]
+  #  - [7.0, 8.0, 1.253, 0.193]
+  # - [8.0, 9.0, 0.871, 0.156]
+  #  - [9.0, 10.0, 0.806, 0.199]
+  #  - [10.0, 11.0, 0.873, 0.273]
+  #  - [11.0, 12.0, 1.109, 0.425]
+  #  - [12.0, 13.0, 1.138, 0.284]
+  #  - [13.0, inf, 1.216, 0.39]
 
+  # From AN
+  bins:
+   - [5.0, 7.0, 1.247, 0.070]
+   - [7.0, 9.0, 1.186, 0.065]
+   - [9.0, 10.0, 1.131, 0.127]
+   - [10.0, 11.0, 1.125, 0.175]
+   - [11.0, 12.0, 0.998, 0.110]
+   - [12.0, 13.0, 0.989, 0.103]
+   - [13.0, inf, 1.013, 0.121]
+
+
+# Same cuts specified in presel BDT data skimming
 preselection:
   triplet: "BToKEE_svprob > 0.0001 && BToKEE_fit_l1_pt > 5. && BToKEE_fit_l2_pt > 5. && BToKEE_fit_mass > 4.5 && BToKEE_fit_mass < 6. && BToKEE_fit_pt > 1.75"
   bdt_score: "Presel_BDT > -3.4"
@@ -46,4 +58,4 @@ q2_cuts:
 
 final_selection:
   bdt_branch: "bdt_score" 
-  cut_value: 0.75
+  cut_value: 0.998
