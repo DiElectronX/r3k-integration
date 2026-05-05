@@ -1,0 +1,95 @@
+samples:
+    - name: data2022
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/data/data2022_skimmed_mix.root
+      is_data: True
+      regions: ["data"]
+
+    - name: ssdata2022
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/data/ssdata2022_skimmed_mix.root
+      is_data: True
+      regions: ["data"]
+  
+    - name: jpsi_pi_pion
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/jpsi/Bu_jpsi_pi_pion_skimmed_mix.root
+      is_data: False
+      regions: ["jpsi"]
+  
+    - name: jpsi_resonant
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/jpsi/Bu_kaon_jpsi_resonant_skimmed_mix.root
+      is_data: False
+      regions: ["jpsi"]
+
+    - name: jpsi_resonant
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/lowq2/Bu_kaon_jpsi_resonant_skimmed_mix.root
+      is_data: False
+      regions: ["lowq2"]
+
+    - name: k0star_jpsi_kaon_pion_kaon
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/jpsi/Bd_k0star_jpsi_kaon_pion_kaon_skimmed_mix.root
+      is_data: False
+      regions: ["jpsi"]
+  
+    - name: k0star_jpsi_kaon_pion_pion
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/jpsi/Bd_k0star_jpsi_kaon_pion_pion_skimmed_mix.root
+      is_data: False
+      regions: ["jpsi"]
+ 
+    - name: k0star_kaon_pi_kaon
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/lowq2/Bd_k0star_kaon_pi_kaon_skimmed_mix.root
+      is_data: False
+      regions: ["lowq2"]
+  
+    - name: k0star_kaon_pi_pion
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/lowq2/Bd_k0star_kaon_pi_pion_skimmed_mix.root
+      is_data: False
+      regions: ["lowq2"]
+  
+    - name: k0star_psi2s_kaon_pion_kaon
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/psi2s/Bd_k0star_psi2s_kaon_pion_kaon_skimmed_mix.root
+      is_data: False
+      regions: ["psi2s"]
+  
+    - name: k0star_psi2s_kaon_pion_pion
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/psi2s/Bd_k0star_psi2s_kaon_pion_pion_skimmed_mix.root
+      is_data: False
+      regions: ["psi2s"]
+  
+    - name: kaon_chic1_jpsi_kaon
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/jpsi/Bu_kaon_chic1_jpsi_kaon_skimmed_mix.root
+      is_data: False
+      regions: ["jpsi"]
+
+    - name: kaon_lowq_resonant
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/lowq2/Bu_kaon_lowq_resonant_skimmed_mix.root
+      is_data: False
+      regions: ["lowq2"]
+  
+    - name: kaon_psi2s_resonant
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/psi2s/Bu_kaon_psi2s_resonant_skimmed_mix.root
+      is_data: False
+      regions: ["psi2s"]
+  
+    - name: kstar_jpsi_kaon_pi0_kaon
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/jpsi/Bu_kstar_jpsi_kaon_pi0_kaon_skimmed_mix.root
+      is_data: False
+      regions: ["jpsi"]
+  
+    - name: kstar_jpsi_ks0_pi_pion
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/jpsi/Bu_kstar_jpsi_ks0_pi_pion_skimmed_mix.root
+      is_data: False
+      regions: ["jpsi"]
+  
+    - name: kstar_K0S_pi_pion
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/lowq2/Bu_kstar_K0S_pi_pion_skimmed_mix.root
+      is_data: False
+      regions: ["lowq2"]
+
+    - name: kstar_psi2s_KS0_pi_pion
+      path: /eos/cms/store/group/phys_bphys/DiElectronX/jfratice/r3k-analysis/output/r3k-int/run4/data/test_output_mix/psi2s/Bu_kstar_psi2s_KS0_pi_pion_skimmed_mix.root
+      is_data: False
+      regions: ["psi2s"]
+  
+
+ 
+  
+

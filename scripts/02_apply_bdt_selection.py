@@ -1,6 +1,6 @@
+import yaml
 import ROOT
 import os
-import yaml
 import pandas as pd
 import argparse
 
@@ -78,13 +78,15 @@ def process_step2(file_info, config, input_base_dir, args):
             args.bdt_suffix,
             args.trigger_tag
         )
-        
+
+        print(f"    [DEBUG] region={region} using input_path={input_path}")
+
         if not input_path:
             print(f"  [Skipping] Could not find scored file for region '{region}' matching core '{core_filename}'")
             continue
             
         # 2. Apply Selection
-        df = ROOT.RDataFrame("mytree", input_path)
+        df = ROOT.RDataFrame("Events", input_path)
         
         cols = [str(c) for c in df.GetColumnNames()]
         if bdt_branch not in cols:

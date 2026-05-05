@@ -28,10 +28,11 @@ channels:
         eff_psi2s: {value: 0.00520, error: 0.00001}
   ee:
     2022:
-      lumi: {value: 18.1796, error: 0.45}
+      lumi: {value: 34.786, error: 0.87}
       yields:
-        n_jpsi: {value: 15897.61, error: 152.29}
-        n_psi2s: {value: 1126.6, error: 37.72}
+        n_jpsi: {value: 98354.75, error: 385.08}
+        n_psi2s: {value: 7155.12, error: 100.8}
       effs:
-        eff_jpsi: {value: 1.41e-4, error: 4.7e-5}
-        eff_psi2s: {value: 1.24e-4, error: 4.3e-5}
+        eff_jpsi: {value: 2.82e-4, error: 9.5e-5}
+        eff_psi2s: {value: 2.50e-4, error: 8.6e-5}
+

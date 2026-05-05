@@ -1,0 +1,184 @@
+  samples: 
+    - name: data2022_1
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/data/data2022_1.root
+      is_data: True
+      regions: ["data"]
+  
+    - name: data2022_2
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/data/data2022_2.root
+      is_data: True
+      regions: ["data"]
+  
+    - name: data2022_3
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/data/data2022__3_1.root
+      is_data: True
+      regions: ["data"]
+  
+    - name: data2022_4
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/data/data2022__3_2.root
+      is_data: True
+      regions: ["data"]
+  
+    - name: data2022_5
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/data/data2022__4_1.root
+      is_data: True
+      regions: ["data"]
+    
+    - name: data2022_6
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/data/data2022__4_2.root
+      is_data: True
+      regions: ["data"]
+    
+    - name: data2022_7
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/data/data2022_5.root
+      is_data: True
+      regions: ["data"]
+  
+
+  # from samples/MC/jpsi_pi_pion.yml
+    - name: jpsi_pi_pion
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_jpsi_pi_pion.root
+      is_data: False
+      regions: ["jpsi"]
+  
+
+  # from samples/MC/jpsi_resonant.yml
+    - name: jpsi_resonant
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_kaon_jpsi_resonant.root
+      is_data: False
+      regions: ["jpsi", "lowq2"]
+  
+
+  # from samples/MC/k0star_jpsi_kaon_pion_kaon.yml
+    - name: k0star_jpsi_kaon_pion_kaon
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bd_k0star_jpsi_kaon_pion_kaon.root
+      is_data: False
+      regions: ["jpsi"]
+  
+
+  # from samples/MC/k0star_jpsi_kaon_pion_pion.yml
+    - name: k0star_jpsi_kaon_pion_pion
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bd_k0star_jpsi_kaon_pion_pion.root
+      is_data: False
+      regions: ["jpsi"]
+  
+
+  # from samples/MC/k0star_kaon_pi_kaon.yml
+    - name: k0star_kaon_pi_kaon
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bd_k0star_kaon_pi_kaon.root
+      is_data: False
+      regions: ["lowq2"]
+  
+
+  # from samples/MC/k0star_kaon_pi_pion.yml
+    - name: k0star_kaon_pi_pion
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bd_k0star_kaon_pi_pion.root
+      is_data: False
+      regions: ["lowq2"]
+  
+
+  # from samples/MC/k0star_psi2s_kaon_pion_kaon.yml
+    - name: k0star_psi2s_kaon_pion_kaon
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bd_k0star_psi2s_kaon_pion_kaon.root
+      is_data: False
+      regions: ["psi2s"]
+  
+
+  # from samples/MC/k0star_psi2s_kaon_pion_pion.yml
+    - name: k0star_psi2s_kaon_pion_pion
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bd_k0star_psi2s_kaon_pion_pion.root
+      is_data: False
+      regions: ["psi2s"]
+  
+
+  # from samples/MC/kaon_chic1_jpsi_kaon.yml
+    - name: kaon_chic1_jpsi_kaon
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_kaon_chic1_jpsi_kaon.root
+      is_data: False
+      regions: ["jpsi"]
+  
+
+  # from samples/MC/kaon_lowq_resonant.yml
+    - name: kaon_lowq_resonant
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_kaon_lowq_resonant.root
+      is_data: False
+      regions: ["lowq2"]
+  
+
+  # from samples/MC/kaon_psi2s_resonant.yml
+    - name: kaon_psi2s_resonant
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_kaon_psi2s_resonant.root
+      is_data: False
+      regions: ["psi2s"]
+  
+
+  # from samples/MC/kstar_jpsi_kaon_pi0_kaon.yml
+    - name: kstar_jpsi_kaon_pi0_kaon
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_kstar_jpsi_kaon_pi0_kaon.root
+      is_data: False
+      regions: ["jpsi"]
+  
+
+  # from samples/MC/kstar_jpsi_ks0_pi_pion.yml
+    - name: kstar_jpsi_ks0_pi_pion
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_kstar_jpsi_ks0_pi_pion.root
+      is_data: False
+      regions: ["jpsi"]
+  
+
+  # from samples/MC/kstar_K0S_pi_pion.yml
+    - name: kstar_K0S_pi_pion
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_kstar_K0S_pi_pion.root
+      is_data: False
+      regions: ["lowq2"]
+  
+
+  # from samples/MC/kstar_psi2s_KS0_pi_pion.yml
+    - name: kstar_psi2s_KS0_pi_pion
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/mc/Bu_kstar_psi2s_KS0_pi_pion.root
+      is_data: False
+      regions: ["psi2s"]
+  
+
+  # from samples/SameSignData/ssdata2022_0.yml
+    - name: ssdata2022_0
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/SameSignData/samesigndata2022_000_presel.root
+      is_data: True
+      regions: ["data"]
+  
+
+  # from samples/SameSignData/ssdata2022_1.yml
+    - name: ssdata2022_1
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/SameSignData/samesigndata2022_001_presel.root
+      is_data: True
+      regions: ["data"]
+  
+
+  # from samples/SameSignData/ssdata2022_2.yml
+    - name: ssdata2022_2
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/SameSignData/samesigndata2022_002_presel.root
+      is_data: True
+      regions: ["data"]
+  
+
+  # from samples/SameSignData/ssdata2022_3.yml
+    - name: ssdata2022_3
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/SameSignData/samesigndata2022_003_presel.root
+      is_data: True
+      regions: ["data"]
+  
+
+  # from samples/SameSignData/ssdata2022_4.yml
+    - name: ssdata2022_4
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/SameSignData/samesigndata2022_004_presel.root
+      is_data: True
+      regions: ["data"]
+  
+
+  # from samples/SameSignData/ssdata2022_5.yml
+    - name: ssdata2022_5
+      path: /eos/home-j/jfratice/RK/preselBDT_output/2022/full/SameSignData/samesigndata2022_005_presel.root
+      is_data: True
+      regions: ["data"]
+  
+

@@ -8,6 +8,8 @@ import argparse
 # --------------------------------------------------------------------------------
 # C++ HELPER (Unchanged)
 # --------------------------------------------------------------------------------
+"""
+# OLD VERSION
 def declare_cpp_helper(trigger_data):
     if hasattr(ROOT, 'assign_path'): return
     paths = list(trigger_data.keys())
@@ -28,6 +30,44 @@ def declare_cpp_helper(trigger_data):
     }}
     '''
     ROOT.gInterpreter.Declare(cpp_code)
+"""
+
+def declare_cpp_helper(trigger_data):
+    # Only declare once
+    if hasattr(ROOT, 'assign_path') and hasattr(ROOT, 'det_rand'):
+        return
+
+    paths = list(trigger_data.keys())
+    fractions = [trigger_data[k][0] for k in paths]
+    norm_fracs = np.array(fractions) / sum(fractions)
+    cdf = np.cumsum(norm_fracs)
+
+    cpp_code = f'''
+    #include <vector>
+    #include <string>
+    #include <cstdint>
+
+    // Deterministic pseudo-random in [0,1) from an integer key + seed.
+    // SplitMix64 hash -> take top 53 bits for a double.
+    double det_rand(unsigned long long key, unsigned int seed) {{
+        uint64_t x = (uint64_t)key + 0x9e3779b97f4a7c15ULL + (uint64_t)seed;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ULL;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111ebULL;
+        x = (x ^ (x >> 31));
+        return (x >> 11) * (1.0 / 9007199254740992.0); // 2^53
+    }}
+
+    std::string assign_path(double rand) {{
+        const std::vector<std::string> paths = {{ {", ".join(f'"{p}"' for p in paths)} }};
+        const std::vector<double> cdf = {{ {", ".join(str(x) for x in cdf)} }};
+        for (size_t i = 0; i < cdf.size(); ++i) {{
+            if (rand < cdf[i]) return paths[i];
+        }}
+        return paths.back();
+    }}
+    '''
+    ROOT.gInterpreter.Declare(cpp_code)
+
 
 def build_sf_expression(sf_bins):
     val_parts, unc_parts = [], []
@@ -72,7 +112,7 @@ def process_file(file_info, config, base_output_dir, args):
         trig_sf_val, trig_sf_unc = build_sf_expression(config['trigger_sf_params']['bins'])
         
         if 'FONLLweight' not in [str(c) for c in df.GetColumnNames()]:
-             df = df.Define('FONLLweight', '1.0')
+             df = df.Define('FONLLweight', '0.7878582119')
 
         df = df.Define('trigger_sf_value', trig_sf_val) \
                .Define('trigger_sf_error', trig_sf_unc) \
@@ -83,12 +123,31 @@ def process_file(file_info, config, base_output_dir, args):
     
     # Case A: MC Mixture (Requires Random Generation on raw DF)
     if not is_data and args.mode == 'mix':
+        """
+        # Old version
         ROOT.gRandom.SetSeed(config['random_seed'])
         declare_cpp_helper(trigger_data)
         
         # Define random assignment on the FULL dataset
         df = df.Define('rand', 'gRandom->Rndm()') \
                .Define('assigned_path', 'assign_path(rand)')
+        """
+
+        declare_cpp_helper(trigger_data)
+
+        seed = int(config['random_seed'])
+
+        # Use rdfentry_ as the deterministic key (always available in RDataFrame)
+        df = (
+            df.Define(
+                'event_key',
+                '(static_cast<unsigned long long>(run) << 42) ^ '
+                '(static_cast<unsigned long long>(luminosityBlock) << 20) ^ '
+                'static_cast<unsigned long long>(event)'
+            )
+            .Define('rand', f'det_rand(event_key, {seed})')
+            .Define('assigned_path', 'assign_path(rand)')
+        )
 
         # Define individual pass columns
         pass_cols = []
@@ -155,6 +214,7 @@ def process_file(file_info, config, base_output_dir, args):
     for region in target_regions:
         # Determine output path
         region_dir = os.path.join(base_output_dir, region)
+        print(region_dir)
         os.makedirs(region_dir, exist_ok=True)
         
         mode_suffix = f"_{args.target_trigger}" if args.mode == 'single' else "_mix"
