@@ -6,34 +6,55 @@ import pandas as pd
 import argparse
 
 # --------------------------------------------------------------------------------
-# C++ HELPER (Unchanged)
+# DEBUG HELPERS
 # --------------------------------------------------------------------------------
-"""
-# OLD VERSION
-def declare_cpp_helper(trigger_data):
-    if hasattr(ROOT, 'assign_path'): return
-    paths = list(trigger_data.keys())
-    fractions = [trigger_data[k][0] for k in paths]
-    norm_fracs = np.array(fractions) / sum(fractions)
-    cdf = np.cumsum(norm_fracs)
+DEBUG_SAMPLES = {"jpsi_resonant", "kaon_psi2s_resonant", "kaon_lowq_resonant"}
 
-    cpp_code = f'''
-    #include <vector>
-    #include <string>
-    std::string assign_path(double rand) {{
-        const std::vector<std::string> paths = {{ {", ".join(f'"{p}"' for p in paths)} }};
-        const std::vector<double> cdf = {{ {", ".join(str(x) for x in cdf)} }};
-        for (size_t i = 0; i < cdf.size(); ++i) {{
-            if (rand < cdf[i]) return paths[i];
-        }}
-        return paths.back();
-    }}
-    '''
-    ROOT.gInterpreter.Declare(cpp_code)
-"""
 
+def should_debug(sample_name):
+    return sample_name in DEBUG_SAMPLES
+
+
+def n_unique_events(rdf):
+    arr = rdf.AsNumpy(["event_key"])["event_key"]
+    return len(np.unique(arr))
+
+
+def debug_stage(sample_name, label, rdf):
+    cols = [str(c) for c in rdf.GetColumnNames()]
+    n_cand = rdf.Count().GetValue()
+    n_evt = n_unique_events(rdf)
+
+    msg = f"[DEBUG][{sample_name}][{label}] candidates={n_cand}, unique_events={n_evt}"
+    if "FONLLweight" in cols:
+        msg += f", sum(FONLLweight)={rdf.Sum('FONLLweight').GetValue()}"
+    if "total_weight" in cols:
+        msg += f", sum(total_weight)={rdf.Sum('total_weight').GetValue()}"
+    print(msg)
+
+
+def debug_trigger_paths(sample_name, rdf, trigger_data):
+    frac_sum = sum(v[0] for v in trigger_data.values())
+    print(f"[DEBUG][{sample_name}] trigger fraction sum = {frac_sum}")
+
+    for key in trigger_data:
+        n_assigned = rdf.Filter(f'assigned_path == "{key}"').Count().GetValue()
+        n_pass = rdf.Filter(f'assigned_path == "{key}" && {key}_pass').Count().GetValue()
+        w_pass = rdf.Filter(f'assigned_path == "{key}" && {key}_pass').Sum('total_weight').GetValue()
+
+        print(
+            f"[DEBUG][{sample_name}][path={key}] "
+            f"cfg_frac={trigger_data[key][0]:.6f}, "
+            f"assigned_cands={n_assigned}, "
+            f"pass_cands={n_pass}, "
+            f"pass_sumw={w_pass}"
+        )
+
+
+# --------------------------------------------------------------------------------
+# C++ HELPER
+# --------------------------------------------------------------------------------
 def declare_cpp_helper(trigger_data):
-    # Only declare once
     if hasattr(ROOT, 'assign_path') and hasattr(ROOT, 'det_rand'):
         return
 
@@ -47,14 +68,12 @@ def declare_cpp_helper(trigger_data):
     #include <string>
     #include <cstdint>
 
-    // Deterministic pseudo-random in [0,1) from an integer key + seed.
-    // SplitMix64 hash -> take top 53 bits for a double.
     double det_rand(unsigned long long key, unsigned int seed) {{
         uint64_t x = (uint64_t)key + 0x9e3779b97f4a7c15ULL + (uint64_t)seed;
         x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ULL;
         x = (x ^ (x >> 27)) * 0x94d049bb133111ebULL;
         x = (x ^ (x >> 31));
-        return (x >> 11) * (1.0 / 9007199254740992.0); // 2^53
+        return (x >> 11) * (1.0 / 9007199254740992.0);
     }}
 
     std::string assign_path(double rand) {{
@@ -73,11 +92,14 @@ def build_sf_expression(sf_bins):
     val_parts, unc_parts = [], []
     for ptmin, ptmax, val, unc in sf_bins:
         ptmax = float(ptmax)
-        if ptmax == float('inf'): cond = f'(BToKEE_fit_l2_pt >= {ptmin})'
-        else: cond = f'(BToKEE_fit_l2_pt >= {ptmin} && BToKEE_fit_l2_pt < {ptmax})'
+        if ptmax == float('inf'):
+            cond = f'(BToKEE_fit_l2_pt >= {ptmin})'
+        else:
+            cond = f'(BToKEE_fit_l2_pt >= {ptmin} && BToKEE_fit_l2_pt < {ptmax})'
         val_parts.append(f'{cond} ? {val}')
         unc_parts.append(f'{cond} ? {unc}')
     return ' : '.join(val_parts) + ' : 1.0', ' : '.join(unc_parts) + ' : 0.0'
+
 
 # --------------------------------------------------------------------------------
 # MAIN PROCESSING LOGIC
@@ -86,124 +108,117 @@ def process_file(file_info, config, base_output_dir, args):
     input_path = file_info['path']
     sample_name = file_info['name']
     is_data = file_info.get('is_data', False)
-    target_regions = file_info.get('regions', ['none']) # Default to list
+    target_regions = file_info.get('regions', ['none'])
 
     if not os.path.exists(input_path):
         print(f"Skipping missing: {input_path}")
         return []
 
     print(f"\nProcessing {sample_name}...")
-    
-    # 0. Load Dataframe
-    df = ROOT.RDataFrame("Events", input_path)
+
+    # 0. Load Dataframe + define event_key immediately for all samples
+    df = (
+        ROOT.RDataFrame("Events", input_path)
+        .Define(
+            'event_key',
+            '(static_cast<unsigned long long>(run) << 42) ^ '
+            '(static_cast<unsigned long long>(luminosityBlock) << 20) ^ '
+            'static_cast<unsigned long long>(event)'
+        )
+    )
 
     # -----------------------------------------------------------------------
-    # CRITICAL STEP 1: GLOBAL DEFINITIONS (Must happen BEFORE filtering)
-    # This ensures random numbers are assigned to the same Event IDs regardless of cuts
+    # STEP 1: GLOBAL DEFINITIONS
     # -----------------------------------------------------------------------
-    
-    # Define Weights
     if is_data:
-        df = df.Define('FONLLweight', '1.0') \
-               .Define('trigger_sf_value', '1.0') \
-               .Define('trigger_sf_error', '0.0') \
-               .Define('total_weight', '1.0')
+        df = (
+            df.Define('FONLLweight', '1.0')
+              .Define('trigger_sf_value', '1.0')
+              .Define('trigger_sf_error', '0.0')
+              .Define('total_weight', '1.0')
+        )
     else:
         trig_sf_val, trig_sf_unc = build_sf_expression(config['trigger_sf_params']['bins'])
-        
+
         if 'FONLLweight' not in [str(c) for c in df.GetColumnNames()]:
-             df = df.Define('FONLLweight', '0.7878582119')
+            df = df.Define('FONLLweight', '0.7878582119')
 
-        df = df.Define('trigger_sf_value', trig_sf_val) \
-               .Define('trigger_sf_error', trig_sf_unc) \
-               .Define('total_weight', 'FONLLweight * trigger_sf_value')
-
-    # Define Trigger Columns (The "Fragile" Part)
-    trigger_data = config['trigger']['fractions']
-    
-    # Case A: MC Mixture (Requires Random Generation on raw DF)
-    if not is_data and args.mode == 'mix':
-        """
-        # Old version
-        ROOT.gRandom.SetSeed(config['random_seed'])
-        declare_cpp_helper(trigger_data)
-        
-        # Define random assignment on the FULL dataset
-        df = df.Define('rand', 'gRandom->Rndm()') \
-               .Define('assigned_path', 'assign_path(rand)')
-        """
-
-        declare_cpp_helper(trigger_data)
-
-        seed = int(config['random_seed'])
-
-        # Use rdfentry_ as the deterministic key (always available in RDataFrame)
         df = (
-            df.Define(
-                'event_key',
-                '(static_cast<unsigned long long>(run) << 42) ^ '
-                '(static_cast<unsigned long long>(luminosityBlock) << 20) ^ '
-                'static_cast<unsigned long long>(event)'
-            )
-            .Define('rand', f'det_rand(event_key, {seed})')
-            .Define('assigned_path', 'assign_path(rand)')
+            df.Define('trigger_sf_value', trig_sf_val)
+              .Define('trigger_sf_error', trig_sf_unc)
+              .Define('total_weight', 'FONLLweight * trigger_sf_value')
         )
 
-        # Define individual pass columns
+    # -----------------------------------------------------------------------
+    # STEP 2: DEFINE TRIGGER LOGIC
+    # -----------------------------------------------------------------------
+    trigger_data = config['trigger']['fractions']
+
+    if not is_data and args.mode == 'mix':
+        declare_cpp_helper(trigger_data)
+ 
+        seed = int(config['random_seed'])
+
+        # IMPORTANT FIX:
+        # use event_key, not rdfentry_, so all candidates from the same event
+        # get the same assigned trigger path
+        df = (
+            df.Define('rand', f'det_rand(event_key, {seed})')
+              .Define('assigned_path', 'assign_path(rand)')
+        )
+
         pass_cols = []
         for key, val in trigger_data.items():
             l1, hlt = val[1], val[2]
             col_name = f'{key}_pass'
             df = df.Define(col_name, f'(assigned_path == "{key}") && ({l1} && {hlt})')
             pass_cols.append(col_name)
-        
-        # The filter string is just OR of these columns
+
         trig_filter_string = ' || '.join(pass_cols)
 
-    # Case B: MC Single / Data (Logic-based, no new columns needed immediately)
+        if should_debug(sample_name):
+            debug_trigger_paths(sample_name, df, trigger_data)
+
     elif not is_data and args.mode == 'single':
         target = args.target_trigger
         l1_t, hlt_t = trigger_data[target][1], trigger_data[target][2]
-        
-        # OLD LOGIC (N-1):
-        # reject = f'!({l1_t} && {hlt_t})'
-        # others = [f'({v[1]} && {v[2]})' for k,v in trigger_data.items()]
-        # pass_any = '(' + ' || '.join(others) + ')'
-        # trig_filter_string = f'{reject} && {pass_any}'
-        
-        # NEW LOGIC (Pure Selection):
-        # "Keep events where THIS trigger fired."
-        # (We do not care if other triggers also fired)
         trig_filter_string = f'({l1_t} && {hlt_t})'
 
-    else: # Data
+    else:
         if args.mode == 'single':
             target = args.target_trigger
             trig_filter_string = f'{trigger_data[target][1]} && {trigger_data[target][2]}'
         else:
-            others = [f'({v[1]} && {v[2]})' for k,v in trigger_data.items()]
+            others = [f'({v[1]} && {v[2]})' for _, v in trigger_data.items()]
             trig_filter_string = ' || '.join(others)
 
-    # -----------------------------------------------------------------------
-    # STEP 2: SEQUENTIAL FILTERING
-    # -----------------------------------------------------------------------
-    
-    # A. Triplet Cuts
-    df_triplet = df.Filter(config['preselection']['triplet'])
-    
-    # B. Trigger Filter (Using the string prepared above)
-    df_trig = df_triplet.Filter(trig_filter_string)
+    if should_debug(sample_name):
+        print(f"\n[DEBUG][{sample_name}] input_path = {input_path}")
+        print(f"[DEBUG][{sample_name}] triplet cut    = {config['preselection']['triplet']}")
+        print(f"[DEBUG][{sample_name}] trigger filter = {trig_filter_string}")
+        print(f"[DEBUG][{sample_name}] presel BDT cut = {config['preselection']['bdt_score']}")
+        print(f"[DEBUG][{sample_name}] anti-D0 cut    = {config['preselection']['anti_d0']}")
 
-    # C. Preselection & Anti-D0
+    # -----------------------------------------------------------------------
+    # STEP 3: SEQUENTIAL FILTERING
+    # -----------------------------------------------------------------------
+    df_triplet = df.Filter(config['preselection']['triplet'])
+    df_trig = df_triplet.Filter(trig_filter_string)
     df_presel = df_trig.Filter(config['preselection']['bdt_score'])
     df_antid0 = df_presel.Filter(config['preselection']['anti_d0'])
 
+    if should_debug(sample_name):
+        debug_stage(sample_name, "RAW", df)
+        debug_stage(sample_name, "AFTER_TRIPLET", df_triplet)
+        debug_stage(sample_name, "AFTER_TRIGGER", df_trig)
+        debug_stage(sample_name, "AFTER_PRESEL_BDT", df_presel)
+        debug_stage(sample_name, "AFTER_ANTI_D0", df_antid0)
+
     # -----------------------------------------------------------------------
-    # STEP 3: REGION LOOP (Branching Paths)
+    # STEP 4: COMMON COUNTS
     # -----------------------------------------------------------------------
     file_results = []
 
-    # Calculate common counts once
     count_before = df.Sum('FONLLweight').GetValue()
     count_triplet = df_triplet.Sum('FONLLweight').GetValue()
     count_trig = df_trig.Sum('FONLLweight').GetValue()
@@ -211,24 +226,27 @@ def process_file(file_info, config, base_output_dir, args):
     sow_presel = df_presel.Sum('total_weight').GetValue()
     sow_antid0 = df_antid0.Sum('total_weight').GetValue()
 
+    # -----------------------------------------------------------------------
+    # STEP 5: REGION LOOP
+    # -----------------------------------------------------------------------
     for region in target_regions:
-        # Determine output path
         region_dir = os.path.join(base_output_dir, region)
         print(region_dir)
         os.makedirs(region_dir, exist_ok=True)
-        
+
         mode_suffix = f"_{args.target_trigger}" if args.mode == 'single' else "_mix"
         out_name = os.path.basename(input_path).replace('.root', f'_skimmed{mode_suffix}.root')
         out_path = os.path.join(region_dir, out_name)
 
-        # Apply Region-Specific Q2 Cut
         q2_cut_str = config['q2_cuts'].get(region, "1")
         df_final = df_antid0.Filter(q2_cut_str)
-        
-        # Count Final
+
+        if should_debug(sample_name):
+            print(f"[DEBUG][{sample_name}][{region}] q2 cut = {q2_cut_str}")
+            debug_stage(sample_name, f"AFTER_Q2_{region}", df_final)
+
         sow_final = df_final.Sum('total_weight').GetValue()
 
-        # Log
         file_results.append({
             'Sample Name': sample_name,
             'Region': region,
@@ -249,6 +267,7 @@ def process_file(file_info, config, base_output_dir, args):
 
     return file_results
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', default='../config/cuts.yml')
@@ -258,10 +277,12 @@ if __name__ == "__main__":
     parser.add_argument('--output', default='../data/pre_bdt_ntuples')
     args = parser.parse_args()
 
-    ROOT.ROOT.EnableImplicitMT()
+    #ROOT.ROOT.EnableImplicitMT()
 
-    with open(args.config) as f: config = yaml.safe_load(f)
-    with open(args.samples) as f: sample_list = yaml.safe_load(f)
+    with open(args.config) as f:
+        config = yaml.safe_load(f)
+    with open(args.samples) as f:
+        sample_list = yaml.safe_load(f)
 
     if args.mode == 'single' and not args.target_trigger:
         raise ValueError("Single mode requires --target_trigger")
@@ -271,12 +292,11 @@ if __name__ == "__main__":
         res_list = process_file(entry, config, args.output, args)
         all_results.extend(res_list)
 
-    # Log Saving
     os.makedirs('../data/logs', exist_ok=True)
-    log_name = f'cutflow_step1_{args.mode}.csv'
+
     if args.mode == 'single':
-        log_name = f'cutflow_step1_{args.target_trigger}.csv' 
+        log_name = f'cutflow_step1_{args.target_trigger}.csv'
     else:
-        log_name = f'cutflow_step1_mix.csv'
-    
+        log_name = 'cutflow_step1_mix.csv'
+
     pd.DataFrame(all_results).to_csv(os.path.join('../data/logs', log_name), index=False)
