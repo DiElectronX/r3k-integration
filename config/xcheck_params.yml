@@ -21,18 +21,24 @@ channels:
     2022:
       lumi: {value: 34.7486, error: 0.87}
       yields:
-        n_jpsi: {value: 3921547, error: 1641}
-        n_psi2s: {value: 376367, error: 611}
+        n_jpsi: {value: 3905876, error: 2173}
+        n_psi2s: {value: 363247, error: 642}
       effs:
-        eff_jpsi: {value: 0.00453, error: 0.00001}
-        eff_psi2s: {value: 0.00520, error: 0.00001}
+        eff_jpsi: {value: 42.66e-4, error: 0.06e-4}
+        eff_psi2s: {value: 49.01e-4, error: 0.07e-4}
   ee:
     2022:
       lumi: {value: 34.786, error: 0.87}
       yields:
-        n_jpsi: {value: 98354.75, error: 385.08}
-        n_psi2s: {value: 7155.12, error: 100.8}
+        n_jpsi: {value: 88198, error: 360}
+        n_psi2s: {value: 6527, error: 94}
       effs:
-        eff_jpsi: {value: 2.82e-4, error: 9.5e-5}
-        eff_psi2s: {value: 2.50e-4, error: 8.6e-5}
-
+        # per-event reweighted miniAOD form (meeting 7/9): eff = alpha_w(1.45) x SoW / (raw x <w>_pass)
+        # alpha_w = FONLL-wtd acceptance (unbiased): jpsi 0.02195, psi2s 0.02331
+        # <w>_pass measured per-event on production miniAOD: jpsi 0.83237, psi2s 0.83084
+        # errors: stat 3.2% (+) FONLL Up/Down envelope on acceptance (+26.6/-8.4%, symmetrized)
+        # = the historical +-0.007 convention. CAVEAT: envelope is ~fully correlated jpsi<->psi2s
+        # (cancels in double ratio) and partially e<->mu (R pull is conservative).
+        # jpsi <w>_pass = 0.831148 from the FULL per-event loop (all 9,345,940 miniAOD events, grid)
+        eff_jpsi: {value: 1.927e-4, error: 0.52e-4}
+        eff_psi2s: {value: 1.732e-4, error: 0.46e-4}

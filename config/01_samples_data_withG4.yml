@@ -1,0 +1,67 @@
+# 2022 data: the 6 nominal presel files + era G ParkingDoubleElectronLowMass4 (missing from the 2024 production; script 153g)
+samples:
+- name: data2022_1
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/data/data2022__1_presel.root
+  is_data: true
+  regions:
+  - data
+- name: data2022_2
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/data/data2022__2_presel.root
+  is_data: true
+  regions:
+  - data
+- name: data2022_3
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/data/data2022__3_presel.root
+  is_data: true
+  regions:
+  - data
+- name: data2022_4
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/data/data2022__4_presel.root
+  is_data: true
+  regions:
+  - data
+- name: data2022_5
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/data/data2022__5_presel.root
+  is_data: true
+  regions:
+  - data
+- name: data2022_6
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/data/data2022__6_presel.root
+  is_data: true
+  regions:
+  - data
+- name: samesigndata2022_0
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/ssdata/samesigndata2022_000_presel.root
+  is_data: true
+  regions:
+  - data
+- name: samesigndata2022_1
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/ssdata/samesigndata2022_001_presel.root
+  is_data: true
+  regions:
+  - data
+- name: samesigndata2022_2
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/ssdata/samesigndata2022_002_presel.root
+  is_data: true
+  regions:
+  - data
+- name: samesigndata2022_3
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/ssdata/samesigndata2022_003_presel.root
+  is_data: true
+  regions:
+  - data
+- name: samesigndata2022_4
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/ssdata/samesigndata2022_004_presel.root
+  is_data: true
+  regions:
+  - data
+- name: samesigndata2022_5
+  path: /eos/home-j/jfratice/RK/preselBDT_output/2022/fix/ssdata/samesigndata2022_005_presel.root
+  is_data: true
+  regions:
+  - data
+- name: data2022_7
+  path: /eos/user/j/jfratice/RK/preselBDT_output/2022/fix/data_G4/data2022_59_presel.root
+  is_data: true
+  regions:
+  - data

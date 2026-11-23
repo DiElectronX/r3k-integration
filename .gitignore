@@ -1,0 +1,5 @@
+*.html
+data/
+data_fixednano/
+fixednano_validation/
+*.csv

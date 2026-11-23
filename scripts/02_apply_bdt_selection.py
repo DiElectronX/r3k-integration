@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import argparse
 import numpy as np
+import uproot
 
 # --------------------------------------------------------------------------------
 # DEBUG HELPERS
@@ -121,6 +122,9 @@ def find_scored_file(input_base_dir, region, sample_name, core_filename, suffix,
             print(f"  [Warning] Ambiguous match in {d}: {matches}. Using {matches[0]}")
             found_file = os.path.join(d, matches[0])
             break
+    
+        if len(matches) != 1:
+            raise RuntimeError("Expected exactly one scored file")
 
     return found_file
 
@@ -158,42 +162,26 @@ def process_step2(file_info, config, input_base_dir, args):
             print(f"  [Skipping] Could not find scored file for region '{region}' matching core '{core_filename}'")
             continue
 
-        # Load the scored file
-        df = ROOT.RDataFrame("Events", input_path)
-
-        if should_debug(sample_name):
-            tmp_cols = [str(c) for c in df.GetColumnNames()]
-            print(f"[DEBUG][{sample_name}][{region}] n_columns = {len(tmp_cols)}")
-
-        # Define event_key only if the scored file kept run/lumi/event
-        df, event_key_col = maybe_define_event_key(df, sample_name, region, input_path)
-
-        cols = [str(c) for c in df.GetColumnNames()]
+        # Load the scored file with uproot. (RDataFrame segfaults when looping
+        # over the slimmed 8-branch wScores; uproot is robust to file layout and
+        # the SoW is just a weighted sum.)
+        t = uproot.open(input_path)["Events"]
+        cols = set(t.keys())
         if bdt_branch not in cols:
             print(f"  [Error] Branch '{bdt_branch}' not found in {input_path}!")
-            print(f"  [Error] Available columns (first 50): {cols[:50]}")
+            print(f"  [Error] Available columns (first 50): {sorted(cols)[:50]}")
             continue
-
-        cut_expression = f"{bdt_branch} > {global_cut}"
-
-        if should_debug(sample_name):
-            print(f"\n[DEBUG][{sample_name}][{region}] input_path = {input_path}")
-            print(f"[DEBUG][{sample_name}][{region}] final BDT branch = {bdt_branch}")
-            print(f"[DEBUG][{sample_name}][{region}] final BDT cut    = {cut_expression}")
-            debug_bdt_stage(sample_name, region, "PRE_BDT", df, bdt_branch, event_key_col)
-
-        df_final = df.Filter(cut_expression)
-
-        if should_debug(sample_name):
-            debug_bdt_stage(sample_name, region, "POST_BDT", df_final, bdt_branch, event_key_col)
 
         if "total_weight" not in cols:
             print(f"  [Error] 'total_weight' missing in {input_path}. Counts will be raw!")
-            sow_before = df.Count().GetValue()
-            sow_final = df_final.Count().GetValue()
+            score = t.arrays([bdt_branch], library="np")[bdt_branch]
+            sow_before = float(len(score))
+            sow_final = float((score > global_cut).sum())
         else:
-            sow_before = df.Sum("total_weight").GetValue()
-            sow_final = df_final.Sum("total_weight").GetValue()
+            a = t.arrays([bdt_branch, "total_weight"], library="np")
+            mask = a[bdt_branch] > global_cut
+            sow_before = float(a["total_weight"].sum())
+            sow_final = float(a["total_weight"][mask].sum())
 
         eff = 0.0
         if sow_before > 0:
